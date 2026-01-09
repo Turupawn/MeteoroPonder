@@ -2,7 +2,7 @@ import { db } from "ponder:api";
 import schema from "ponder:schema";
 import { Hono } from "hono";
 import { client, graphql } from "ponder";
-import { games, randomnessPosts, gameReveals } from "ponder:schema";
+import { gameRequests, gameCompletions, gameTies } from "ponder:schema";
 
 // Helper to convert BigInt to string for JSON serialization
 function serializeBigInt(obj: any): any {
@@ -26,61 +26,52 @@ app.use("/sql/*", client({ db, schema }));
 app.use("/", graphql({ db, schema }));
 app.use("/graphql", graphql({ db, schema }));
 
-// REST endpoints for polling with filtering
+// REST endpoints for VRF-based game tracking
 app.get("/api/games", async (c) => {
   const lastId = c.req.query("lastId");
   const limit = parseInt(c.req.query("limit") || "100", 10);
 
-  let allResults = await db.select().from(games).orderBy(games.id);
-  
-  // Filter by lastId if provided
+  let allResults = await db.select().from(gameRequests).orderBy(gameRequests.id);
+
   if (lastId) {
     allResults = allResults.filter((row: any) => {
       return BigInt(row.id.toString()) > BigInt(lastId);
     });
   }
-  
-  // Apply limit
+
   const results = allResults.slice(0, limit);
-  
   return c.json(serializeBigInt(results));
 });
 
-app.get("/api/randomness-posts", async (c) => {
+app.get("/api/completions", async (c) => {
   const lastId = c.req.query("lastId");
   const limit = parseInt(c.req.query("limit") || "100", 10);
 
-  let allResults = await db.select().from(randomnessPosts).orderBy(randomnessPosts.id);
-  
-  // Filter by lastId if provided
+  let allResults = await db.select().from(gameCompletions).orderBy(gameCompletions.id);
+
   if (lastId) {
     allResults = allResults.filter((row: any) => {
       return BigInt(row.id.toString()) > BigInt(lastId);
     });
   }
-  
-  // Apply limit
+
   const results = allResults.slice(0, limit);
-  
   return c.json(serializeBigInt(results));
 });
 
-app.get("/api/reveals", async (c) => {
+app.get("/api/ties", async (c) => {
   const lastId = c.req.query("lastId");
   const limit = parseInt(c.req.query("limit") || "100", 10);
 
-  let allResults = await db.select().from(gameReveals).orderBy(gameReveals.id);
-  
-  // Filter by lastId if provided
+  let allResults = await db.select().from(gameTies).orderBy(gameTies.id);
+
   if (lastId) {
     allResults = allResults.filter((row: any) => {
       return BigInt(row.id.toString()) > BigInt(lastId);
     });
   }
-  
-  // Apply limit
+
   const results = allResults.slice(0, limit);
-  
   return c.json(serializeBigInt(results));
 });
 

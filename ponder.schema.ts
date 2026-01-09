@@ -1,25 +1,31 @@
 import { onchainTable } from "ponder";
 
-export const games = onchainTable("games", (t) => ({
-  id: t.bigint().primaryKey(), // gameId as bigint
+// VRF-based game tracking (new contract)
+export const gameRequests = onchainTable("gameRequests", (t) => ({
+  id: t.bigint().primaryKey(), // gameId
   player: t.text().notNull(),
-  commitHash: t.text().notNull(),
+  requestId: t.bigint().notNull(),
   betAmount: t.bigint().notNull(),
+  requestTimestamp: t.bigint().notNull(),
   gasUsed: t.bigint(),
 }));
 
-export const randomnessPosts = onchainTable("randomnessPosts", (t) => ({
-  id: t.bigint().primaryKey(), // gameId as bigint
-  randomness: t.text().notNull(),
-  timestamp: t.bigint().notNull(),
-  gasUsed: t.bigint(),
-}));
-
-export const gameReveals = onchainTable("gameReveals", (t) => ({
-  id: t.bigint().primaryKey(), // gameId as bigint
+export const gameCompletions = onchainTable("gameCompletions", (t) => ({
+  id: t.bigint().primaryKey(), // gameId
   player: t.text().notNull(),
   playerCard: t.bigint().notNull(),
   houseCard: t.bigint().notNull(),
-  winner: t.text().notNull(),
+  winner: t.text().notNull(), // player address, contract address, or 0x0 for tie
+  payout: t.bigint().notNull(),
+  completedTimestamp: t.bigint().notNull(),
+  gasUsed: t.bigint(),
+}));
+
+export const gameTies = onchainTable("gameTies", (t) => ({
+  id: t.bigint().primaryKey(), // gameId
+  player: t.text().notNull(),
+  playerCard: t.bigint().notNull(),
+  houseCard: t.bigint().notNull(),
+  tieReward: t.bigint().notNull(),
   gasUsed: t.bigint(),
 }));

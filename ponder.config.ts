@@ -21,7 +21,7 @@ export default createConfig({
       chain: "rise",
       abi: ExampleContractAbi,
       address: process.env.CONTRACT_ADDRESS! as `0x${string}`,
-      startBlock: 26493436,
+      startBlock: 32812091,
       includeTransactionReceipts: true,
     },
   },

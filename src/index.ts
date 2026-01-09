@@ -1,32 +1,38 @@
 import { ponder } from "ponder:registry";
-import { games, randomnessPosts, gameReveals } from "ponder:schema";
+import { gameRequests, gameCompletions, gameTies } from "ponder:schema";
 
-ponder.on("ExampleContract:GameCreated", async ({ event, context }) => {
-  await context.db.insert(games).values({
+// VRF-based event handlers (new contract)
+ponder.on("ExampleContract:GameRequested", async ({ event, context }) => {
+  await context.db.insert(gameRequests).values({
     id: event.args.gameId,
     player: event.args.player,
-    commitHash: event.args.commitHash,
+    requestId: event.args.requestId,
     betAmount: event.args.betAmount,
+    requestTimestamp: BigInt(event.block.timestamp),
     gasUsed: event.transactionReceipt.gasUsed,
   });
 });
 
-ponder.on("ExampleContract:HouseRandomnessPosted", async ({ event, context }) => {
-  await context.db.insert(randomnessPosts).values({
-    id: event.args.gameId,
-    randomness: event.args.randomness,
-    timestamp: event.args.timestamp,
-    gasUsed: event.transactionReceipt.gasUsed,
-  });
-});
-
-ponder.on("ExampleContract:GameRevealed", async ({ event, context }) => {
-  await context.db.insert(gameReveals).values({
+ponder.on("ExampleContract:GameCompleted", async ({ event, context }) => {
+  await context.db.insert(gameCompletions).values({
     id: event.args.gameId,
     player: event.args.player,
     playerCard: event.args.playerCard,
     houseCard: event.args.houseCard,
     winner: event.args.winner,
+    payout: event.args.payout,
+    completedTimestamp: BigInt(event.block.timestamp),
+    gasUsed: event.transactionReceipt.gasUsed,
+  });
+});
+
+ponder.on("ExampleContract:GameTied", async ({ event, context }) => {
+  await context.db.insert(gameTies).values({
+    id: event.args.gameId,
+    player: event.args.player,
+    playerCard: event.args.playerCard,
+    houseCard: event.args.houseCard,
+    tieReward: event.args.tieReward,
     gasUsed: event.transactionReceipt.gasUsed,
   });
 });
